@@ -301,7 +301,19 @@ def run(init, input, templ, dt = None, t_end = None, anim = False):
 	corresponding file will be loaded. If input is set to None, init will be
 	used both for initial state and input.
 
-	templ is the template to run.
+	templ is the template to run. It must be either a Template object, a
+	two-tuple or a three-tuple. When it is a two-tuple, the first item must be
+	a callable defining the cell dynamic and the second item is the boundary
+	condition. When it is a three-tuple, the third argument defines the
+	connection radius. The cell function must take exactly six arguments, which
+	are, in order:
+	  x - the x coordinate of the current cell
+	  y - the y coordinate of the current cell
+	  state - the current state of the network (a matrix)
+	  input - the input matrix of the network
+	  t - current time
+	  data - a void pointer, should not be used
+	The function must return a float.
 
 	dt and t_end control the time step and total time of the simulation. When
 	set to None, the default values provided by the template will be used.
