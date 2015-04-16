@@ -91,15 +91,15 @@ class _MatrixRaw (Structure):
 		"bottom", count black pixels along the respective edges only.
 		'''
 		if where == "all":
-			return CNN.count_blacks(self, 1)
+			return CNN.count_blacks(self, 0)
 		elif where == "left":
-			return CNN.count_blacks_left(self, 1)
+			return CNN.count_blacks_left(self, 0)
 		elif where == "right":
-			return CNN.count_blacks_right(self, 1)
+			return CNN.count_blacks_right(self, 0)
 		elif where == "top":
-			return CNN.count_blacks_top(self, 1)
+			return CNN.count_blacks_top(self, 0)
 		elif where == "bottom":
-			return CNN.count_blacks_bottom(self, 1)
+			return CNN.count_blacks_bottom(self, 0)
 		else:
 			raise ValueError("'where' must be one of 'all', 'left', 'right', 'top' or 'bottom'");
 	
