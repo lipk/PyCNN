@@ -56,7 +56,6 @@ void bound_zeroflux(matrix state, size_t s);
 void bound_constant(matrix state, size_t s);
 
 double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,double t, void *tem);
-double staticNxN(size_t x, size_t y, matrix state, matrix input, double t, void *tem);
 
 void update_animate(matrix m, void *data);
 void update_nothing(matrix m, void *data);
