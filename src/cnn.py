@@ -242,7 +242,7 @@ def save_image(mat, path):
 	'''
 	Save mat as grayscale PNG into path.
 	'''
-	CNN.save_image(CNN.img_to_data(mat), path.encode())
+	CNN.save_image(CNN.data_to_img(mat), path.encode())
 
 def __set_template(tem, init, input):
 	bound = None
