@@ -16,9 +16,10 @@
 
 template3x3 tem3x3;
 void *tem_data;
-double (*tem_func)(size_t, size_t, matrix, matrix, double, void*);
+double (*tem_func)(size_t, size_t, matrix, matrix, matrix, double, void*);
 matrix init;
-matrix input;
+matrix input1;
+matrix input2;
 double bnd;
 size_t s;
 
@@ -40,7 +41,7 @@ void py_set_template3x3(template3x3 tm)
 	s = 1;
 }
 
-void py_set_template_custom(double (*tem)(size_t, size_t, matrix, matrix, double, void*), size_t s_val)
+void py_set_template_custom(double (*tem)(size_t, size_t, matrix, matrix, matrix, double, void*), size_t s_val)
 {
 	tem_func = tem;
 	tem_data = NULL;
@@ -57,16 +58,21 @@ void py_set_init(matrix m)
 	init = m;
 }
 
-void py_set_input(matrix m)
+void py_set_input1(matrix m)
 {
-	input = m;
+	input1 = m;
 }
 
+void py_set_input2(matrix m)
+{
+	input2 = m;
+}
 
 matrix py_apply_template(double dt, double t_end, int anim)
 {
 	fill_bounds(init, 1, bnd);
-	fill_bounds(input, 1, bnd);
+	fill_bounds(input1, 1, bnd);
+	fill_bounds(input2, 1, bnd);
 
 	void (*upd_func)(matrix, void*) = update_nothing;
 	void *upd_data = NULL;
@@ -96,7 +102,7 @@ matrix py_apply_template(double dt, double t_end, int anim)
 		bnd_func = bound_constant;
 	}
 
-	matrix res = run_cnn(init, input, 1, tem_func, tem_data, bnd_func, dt, t_end, upd_func, upd_data);
+	matrix res = run_cnn(init, input1, input2, 1, tem_func, tem_data, bnd_func, dt, t_end, upd_func, upd_data);
 	
 	if (anim & BLOCK && anim & ANIMATE)
 	{

@@ -244,9 +244,9 @@ def save_image(mat, path):
 	'''
 	CNN.save_image(CNN.data_to_img(mat), path.encode())
 
-def __set_template(tem, init, input):
+def __set_template(tem, init, input1, input2):
 	bound = None
-	cell_func = CFUNCTYPE(c_double, c_size_t, c_size_t, _MatrixRaw, _MatrixRaw, c_double, c_void_p)
+	cell_func = CFUNCTYPE(c_double, c_size_t, c_size_t, _MatrixRaw, _MatrixRaw, _MatrixRaw, c_double, c_void_p)
 	s = 1
 	if type(tem) is tuple:
 		f = cell_func(tem[0])
@@ -261,18 +261,28 @@ def __set_template(tem, init, input):
 	if type(bound) is float:
 		CNN.py_set_boundary(c_double(bound))
 		CNN.fill_bounds(init, c_size_t(s), c_double(bound))
-		CNN.fill_bounds(input, c_size_t(s), c_double(bound))
+		CNN.fill_bounds(input1, c_size_t(s), c_double(bound))
+		CNN.fill_bounds(input2, c_size_t(s), c_double(bound))
 	elif bound == "zeroflux":
 		CNN.py_set_boundary(c_double(2.0))
 	elif bound == "periodic":
 		CNN.py_set_boundary(c_double(3.0))
 
 def __run_single(init, input, templ, dt = None, t_end = None, anim = False, block = False, close = True):
-	if input is None:
-		input = init
+	input1 = input
+	input2 = input
+	if type(input) is tuple:
+		input1 = input[0]
+		input2 = input[1]
+	
+	if input1 is None:
+		input1 = init
+	if input2 is None:
+		input2 = init
 
 	init = init.expand(1)
-	input = input.expand(1)
+	input1 = input1.expand(1)
+	input2 = input2.expand(1)
 
 	if dt is None:
 		if type(templ) is Template:
@@ -285,10 +295,11 @@ def __run_single(init, input, templ, dt = None, t_end = None, anim = False, bloc
 		else:
 			t_end = 10.0
 
-	__set_template(templ, init, input)
+	__set_template(templ, init, input1, input2)
 
 	CNN.py_set_init(init)
-	CNN.py_set_input(input)
+	CNN.py_set_input1(input1)
+	CNN.py_set_input2(input2)
 	anim_flags = 0
 	if anim:
 		anim_flags += 1

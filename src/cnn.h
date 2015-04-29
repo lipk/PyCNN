@@ -55,14 +55,14 @@ void bound_periodic(matrix state, size_t s);
 void bound_zeroflux(matrix state, size_t s);
 void bound_constant(matrix state, size_t s);
 
-double static3x3(size_t x, size_t y, matrix state, matrix input, double t, void *tem);
+double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,double t, void *tem);
 double staticNxN(size_t x, size_t y, matrix state, matrix input, double t, void *tem);
 
 void update_animate(matrix m, void *data);
 void update_nothing(matrix m, void *data);
 
-matrix run_cnn(matrix init, matrix input_, size_t s,
-			   double (*cell)(size_t, size_t, matrix, matrix, double, void*),
+matrix run_cnn(matrix init, matrix input1_, matrix input2_, size_t s,
+			   double (*cell)(size_t, size_t, matrix, matrix, matrix, double, void*),
 			   void *cell_data, void (*bnd)(matrix, size_t), double dt, double t_end,
 			   void (update)(matrix, void*), void *update_data);
 

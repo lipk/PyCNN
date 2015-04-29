@@ -263,7 +263,7 @@ size_t count_blacks_bottom(matrix m, size_t s)
 	return blacks;
 }
 
-double static3x3(size_t x, size_t y, matrix state, matrix input, double t, void *tem)
+double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
 {
 	template3x3 *tmpl = (template3x3*) tem;
 	return phi((state.data[state.w*(y-1) + x-1]) * tmpl->a[0]) +
@@ -275,15 +275,15 @@ double static3x3(size_t x, size_t y, matrix state, matrix input, double t, void 
 		   phi((state.data[state.w*(y+1) + x-1]) * tmpl->a[6]) +
 		   phi((state.data[state.w*(y+1) + x  ]) * tmpl->a[7]) +
 		   phi((state.data[state.w*(y+1) + x+1]) * tmpl->a[8]) +
-		   input.data[input.w*(y-1) + x-1] * tmpl->b[0] +
-		   input.data[input.w*(y-1) + x  ] * tmpl->b[1] +
-		   input.data[input.w*(y-1) + x+1] * tmpl->b[2] +
-		   input.data[input.w*(y  ) + x-1] * tmpl->b[3] +
-		   input.data[input.w*(y  ) + x  ] * tmpl->b[4] +
-		   input.data[input.w*(y  ) + x+1] * tmpl->b[5] +
-		   input.data[input.w*(y+1) + x-1] * tmpl->b[6] +
-		   input.data[input.w*(y+1) + x  ] * tmpl->b[7] +
-		   input.data[input.w*(y+1) + x+1] * tmpl->b[8] +
+		   input1.data[input1.w*(y-1) + x-1] * tmpl->b[0] +
+		   input1.data[input1.w*(y-1) + x  ] * tmpl->b[1] +
+		   input1.data[input1.w*(y-1) + x+1] * tmpl->b[2] +
+		   input1.data[input1.w*(y  ) + x-1] * tmpl->b[3] +
+		   input1.data[input1.w*(y  ) + x  ] * tmpl->b[4] +
+		   input1.data[input1.w*(y  ) + x+1] * tmpl->b[5] +
+		   input1.data[input1.w*(y+1) + x-1] * tmpl->b[6] +
+		   input1.data[input1.w*(y+1) + x  ] * tmpl->b[7] +
+		   input1.data[input1.w*(y+1) + x+1] * tmpl->b[8] +
 		   -state.data[state.w*y + x] + tmpl->z;
 }
 
@@ -345,19 +345,21 @@ void update_animate(matrix m, void *data)
 
 void update_nothing(matrix m, void *data) {}
 
-matrix run_cnn(matrix init, matrix input_, size_t s,
-			   double (*cell)(size_t, size_t, matrix, matrix, double, void*),
+matrix run_cnn(matrix init, matrix input1_, matrix input2_, size_t s,
+			   double (*cell)(size_t, size_t, matrix, matrix, matrix, double, void*),
 			   void *cell_data, void (*bnd)(matrix, size_t), double dt, double t_end,
 			   void (*update)(matrix, void*), void *update_data)
 {
 	matrix buf1 = copy_matrix(init),
 		   buf2 = copy_matrix(init),
-		   input = copy_matrix(input_);
+		   input1 = copy_matrix(input1_),
+		   input2 = copy_matrix(input2_);
 
 	matrix *state = &buf1,
 		   *next_state = &buf2;
 	
-	bnd(input, s);
+	bnd(input1, s);
+	bnd(input2, s);
 
 	for (double t = 0; t<t_end; t += dt)
 	{
@@ -369,13 +371,13 @@ matrix run_cnn(matrix init, matrix input_, size_t s,
 			{
 				double *xy = state->data + y*state->w + x;
 				const double xy_val = *xy;
-				const double k1 = dt*cell(x, y, *state, input, t, cell_data);
+				const double k1 = dt*cell(x, y, *state, input1, input2, t, cell_data);
 				*xy = xy_val + k1/2;
-				const double k2 = dt*cell(x, y, *state, input, t+dt/2, cell_data);
+				const double k2 = dt*cell(x, y, *state, input1, input2, t+dt/2, cell_data);
 				*xy = xy_val + k2/2;
-				const double k3 = dt*cell(x, y, *state, input, t+dt/2, cell_data);
+				const double k3 = dt*cell(x, y, *state, input1, input2, t+dt/2, cell_data);
 				*xy = xy_val + k3;
-				const double k4 = dt*cell(x, y, *state, input, t+dt, cell_data);
+				const double k4 = dt*cell(x, y, *state, input1, input2, t+dt, cell_data);
 				*xy = xy_val;
 
 				next_state->data[y*next_state->w + x] = state->data[y*state->w + x] + k1/6 + k2/3 + k3/3 + k4/6;
