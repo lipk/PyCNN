@@ -398,6 +398,8 @@ matrix run_cnn(matrix init, matrix input1_, matrix input2_, size_t s,
 	}
 
 	free_matrix(*next_state);
+	free_matrix(input1);
+	free_matrix(input2);
 
 	return *state;
 }
