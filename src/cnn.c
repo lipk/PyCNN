@@ -202,7 +202,7 @@ size_t count_blacks(matrix m, size_t s)
 	{
 		for (size_t j = s; j<m.h-s; ++j)
 		{
-			if (m.data[j*m.w + i] >= 0.99)
+			if (m.data[j*m.w + i] >= 1.0)
 			{
 				blacks++;
 			}
@@ -216,7 +216,7 @@ size_t count_blacks_left(matrix m, size_t s)
 	size_t blacks = 0;
 	for (size_t i = s; i<m.h; ++i)
 	{
-		if (m.data[i*m.w + s] >= 0.99)
+		if (m.data[i*m.w + s] >= 1.0)
 		{
 			blacks++;
 		}
@@ -229,7 +229,7 @@ size_t count_blacks_right(matrix m, size_t s)
 	size_t blacks = 0;
 	for (size_t i = s; i<m.h; ++i)
 	{
-		if (m.data[i*m.w + m.w-s-1] >= 0.99)
+		if (m.data[i*m.w + m.w-s-1] >= 1.0)
 		{
 			blacks++;
 		}
@@ -242,7 +242,7 @@ size_t count_blacks_top(matrix m, size_t s)
 	size_t blacks = 0;
 	for (size_t i = s; i<m.w-s; ++i)
 	{
-		if (m.data[s*m.w + i] >= 0.99)
+		if (m.data[s*m.w + i] >= 1.0)
 		{
 			blacks++;
 		}
@@ -255,7 +255,7 @@ size_t count_blacks_bottom(matrix m, size_t s)
 	size_t blacks = 0;
 	for (size_t i = s; i<m.w-s; ++i)
 	{
-		if (m.data[(m.h-s-1)*m.w + i] >= 0.99)
+		if (m.data[(m.h-s-1)*m.w + i] >= 1.0)
 		{
 			blacks++;
 		}
@@ -378,7 +378,7 @@ matrix run_cnn(matrix init, matrix input_, size_t s,
 				const double k4 = dt*cell(x, y, *state, input, t+dt, cell_data);
 				*xy = xy_val;
 
-				next_state->data[y*next_state->w + x] = phi(state->data[y*state->w + x] + k1/6 + k2/3 + k3/3 + k4/6);
+				next_state->data[y*next_state->w + x] = state->data[y*state->w + x] + k1/6 + k2/3 + k3/3 + k4/6;
 			}
 		}
 		update(*state, update_data);
@@ -386,6 +386,15 @@ matrix run_cnn(matrix init, matrix input_, size_t s,
 		state = next_state;
 		next_state = tmp;
 	}
+
+	for (size_t x = 0; x<state->w; ++x)
+	{
+		for (size_t y = 0; y<state->h; ++y)
+		{
+			state->data[y*state->w + x] = phi(state->data[y*state->w + x]);
+		}
+	}
+
 	free_matrix(*next_state);
 
 	return *state;
