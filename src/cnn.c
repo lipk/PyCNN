@@ -145,6 +145,14 @@ matrix load_image(const char *file)
 	return data;
 }
 
+void save_image(SDL_Surface *surf, const char *file)
+{
+	if (IMG_SavePNG(surf, file))
+	{
+		fputs(IMG_GetError(), stderr);
+	}
+}
+
 matrix expand_matrix(matrix m, size_t s)
 {
 	matrix res = create_matrix(m.w + 2, m.h + 2);

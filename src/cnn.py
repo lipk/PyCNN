@@ -238,6 +238,12 @@ def load_image(path):
 	'''
 	return CNN.py_load_image(path.encode())
 
+def save_image(mat, path):
+	'''
+	Save mat as grayscale PNG into path.
+	'''
+	CNN.save_image(CNN.img_to_data(mat), path.encode())
+
 def __set_template(tem, init, input):
 	bound = None
 	cell_func = CFUNCTYPE(c_double, c_size_t, c_size_t, _MatrixRaw, _MatrixRaw, c_double, c_void_p)
