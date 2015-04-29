@@ -40,6 +40,7 @@ void fill_matrix (matrix m, double val);
 matrix img_to_data(SDL_Surface *img);
 SDL_Surface *data_to_img(matrix data);
 matrix load_image(const char *file);
+void save_image(SDL_Surface *surf, const char *file);
 matrix expand_matrix(matrix m, size_t s);
 matrix shrink_matrix(matrix m, size_t s);
 void fill_bounds(matrix m, size_t s, double val);
