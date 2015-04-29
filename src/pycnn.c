@@ -36,9 +36,18 @@ matrix py_load_image(const char *file)
 void py_set_template3x3(template3x3 tm)
 {
 	tem3x3 = tm;
-	tem_func = static3x3;
 	tem_data = &tem3x3;
 	s = 1;
+
+	for (int i = 0; i<9; ++i)
+	{
+		if (tm.d[i] != 0)
+		{
+			tem_func = nonlin3x3;
+			return;
+		}
+	}
+	tem_func = static3x3;
 }
 
 void py_set_template_custom(double (*tem)(size_t, size_t, matrix, matrix, matrix, double, void*), size_t s_val)

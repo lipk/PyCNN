@@ -287,6 +287,95 @@ double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,
 		   -state.data[state.w*y + x] + tmpl->z;
 }
 
+
+double nonlin3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
+{
+	template3x3 *tmpl = (template3x3*) tem;
+	double ij[4] =
+	{
+		state.data[state.w*y + x],
+		phi(state.data[state.w*y + x]),
+		input1.data[input1.w*y + x],
+		input2.data[input2.w*y + x]
+	};
+	double kl[4][9] =
+	{
+		{
+			state.data[state.w*(y-1) + x-1],
+			state.data[state.w*(y-1) + x  ],
+			state.data[state.w*(y-1) + x+1],
+			state.data[state.w*(y  ) + x-1],
+			state.data[state.w*(y  ) + x  ],
+			state.data[state.w*(y  ) + x+1],
+			state.data[state.w*(y+1) + x-1],
+			state.data[state.w*(y+1) + x  ],
+			state.data[state.w*(y+1) + x+1],
+		},
+		{
+			phi(state.data[state.w*(y-1) + x-1]),
+			phi(state.data[state.w*(y-1) + x  ]),
+			phi(state.data[state.w*(y-1) + x+1]),
+			phi(state.data[state.w*(y  ) + x-1]),
+			phi(state.data[state.w*(y  ) + x  ]),
+			phi(state.data[state.w*(y  ) + x+1]),
+			phi(state.data[state.w*(y+1) + x-1]),
+			phi(state.data[state.w*(y+1) + x  ]),
+			phi(state.data[state.w*(y+1) + x+1]),
+		},
+		{
+			input1.data[input1.w*(y-1) + x-1],
+			input1.data[input1.w*(y-1) + x  ],
+			input1.data[input1.w*(y-1) + x+1],
+			input1.data[input1.w*(y  ) + x-1],
+			input1.data[input1.w*(y  ) + x  ],
+			input1.data[input1.w*(y  ) + x+1],
+			input1.data[input1.w*(y+1) + x-1],
+			input1.data[input1.w*(y+1) + x  ],
+			input1.data[input1.w*(y+1) + x+1],
+		},
+		{
+			input2.data[input2.w*(y-1) + x-1],
+			input2.data[input2.w*(y-1) + x  ],
+			input2.data[input2.w*(y-1) + x+1],
+			input2.data[input2.w*(y  ) + x-1],
+			input2.data[input2.w*(y  ) + x  ],
+			input2.data[input2.w*(y  ) + x+1],
+			input2.data[input2.w*(y+1) + x-1],
+			input2.data[input2.w*(y+1) + x  ],
+			input2.data[input2.w*(y+1) + x+1],
+		}
+	};
+
+	return -state.data[state.w*y + x] + tmpl->z +
+		   + kl[1][0]*tmpl->a[0]
+		   + kl[1][1]*tmpl->a[1]
+		   + kl[1][2]*tmpl->a[2]
+		   + kl[1][3]*tmpl->a[3]
+		   + kl[1][4]*tmpl->a[4]
+		   + kl[1][5]*tmpl->a[5]
+		   + kl[1][6]*tmpl->a[6]
+		   + kl[1][7]*tmpl->a[7]
+		   + kl[1][8]*tmpl->a[8]
+		   + kl[2][0]*tmpl->b[0]
+		   + kl[2][1]*tmpl->b[1]
+		   + kl[2][2]*tmpl->b[2]
+		   + kl[2][3]*tmpl->b[3]
+		   + kl[2][4]*tmpl->b[4]
+		   + kl[2][5]*tmpl->b[5]
+		   + kl[2][6]*tmpl->b[6]
+		   + kl[2][7]*tmpl->b[7]
+		   + kl[2][8]*tmpl->b[8]
+		   + tmpl->phi(kl[tmpl->dkl][0]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[0]
+		   + tmpl->phi(kl[tmpl->dkl][1]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[1]
+		   + tmpl->phi(kl[tmpl->dkl][2]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[2]
+		   + tmpl->phi(kl[tmpl->dkl][3]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[3]
+		   + tmpl->phi(kl[tmpl->dkl][4]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[4]
+		   + tmpl->phi(kl[tmpl->dkl][5]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[5]
+		   + tmpl->phi(kl[tmpl->dkl][6]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[6]
+		   + tmpl->phi(kl[tmpl->dkl][7]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[7]
+		   + tmpl->phi(kl[tmpl->dkl][8]-ij[tmpl->dij],tmpl->phi_data)*tmpl->d[8];
+}
+
 void bound_periodic(matrix state, size_t s)
 {
 	for (int i = 0; i<s; ++i)
@@ -324,6 +413,60 @@ void bound_zeroflux(matrix state, size_t s)
 }
 
 void bound_constant(matrix state, size_t s) {}
+
+double nonlin_sign(double val, void *data)
+{
+	if (val < 0)
+	{
+		return -1;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+double nonlin_standard(double val, void *data)
+{
+	if (val < -1)
+	{
+		return -1;
+	}
+	else if (val > 1)
+	{
+		return 1;
+	}
+	else
+	{
+		return val;
+	}
+}
+
+double nonlin_pw_constant(double val, void *data)
+{
+	double *p = (double*) data;
+	for (int i = 1; i<p[0]; i += 2)
+	{
+		if (val < p[i])
+		{
+			return p[i+1];
+		}
+	}
+	return p[(int) p[0]-1];
+}
+
+double nonlin_pw_linear(double val, void *data)
+{
+	double *p = (double*) data;
+	for (int i = 1; i<p[0]; i += 3)
+	{
+		if (val < p[i])
+		{
+			return val*p[i+1] + p[i+2];
+		}
+	}
+	return val*p[(int) p[0]-2] + p[(int) p[0]-1];
+}
 
 void update_animate(matrix m, void *data)
 {

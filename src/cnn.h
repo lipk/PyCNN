@@ -28,6 +28,10 @@ typedef struct
 	double a[9];
 	double b[9];
 	double z;
+	double d[9];
+	int dij, dkl;
+	double (*phi)(double, void*);
+	void *phi_data;
 } template3x3;
 
 extern const matrix NULLMAT;
@@ -55,7 +59,13 @@ void bound_periodic(matrix state, size_t s);
 void bound_zeroflux(matrix state, size_t s);
 void bound_constant(matrix state, size_t s);
 
+double nonlin_sign(double val, void *data);
+double nonlin_standard(double val, void *data);
+double nonlin_pw_constant(double val, void *data);
+double nonlin_pw_linear(double val, void *data);
+
 double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,double t, void *tem);
+double nonlin3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,double t, void *tem);
 
 void update_animate(matrix m, void *data);
 void update_nothing(matrix m, void *data);

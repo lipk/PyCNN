@@ -155,7 +155,13 @@ CNN.py_apply_template.restype = Matrix
 class _TemplateRaw (Structure):
 	_fields_ = [("a", c_double * 9),
 				("b", c_double * 9),
-				("z", c_double)]
+				("z", c_double),
+				("d", c_double * 9),
+				("dij", c_int),
+				("dkl", c_int),
+				("phi", c_void_p),
+				("phi_data", c_void_p)]
+
 class Template:
 	'''
 	Encapsulates a place and time invariant 3-by-3 CNN template.
@@ -185,7 +191,7 @@ class Template:
 			res[i] = field[i]
 		return res
 
-	def __init__(self, a = [0]*9, b = [0]*9, z = 0, bound = 0, dt = 0.1, t_end = 10.0):
+	def __init__(self, a = [0]*9, b = [0]*9, z = 0, bound = 0, dt = 0.1, t_end = 10.0, d = [0]*9, dfunc = "standard", dtype = "u1-x"):
 		'''
 		Initialize a new template with given settings.
 
@@ -225,11 +231,56 @@ class Template:
 		'''
 		ta = Template._init_array_(a)
 		tb = Template._init_array_(b)
-		self.tem = _TemplateRaw(ta, tb, z)
+		td = Template._init_array_(d)
+
+		nl_func = CNN.nonlin_standard
+		nl_data = None
+		if type(dfunc) is str:
+			if dfunc == "sign":
+				nl_func = CNN.nonlin_sign
+		elif type(dfunc) is list:
+			nl_data = (c_double * len(dfunc))()
+			nl_data[0] = c_double(len(dfunc))
+			for i in range(1, len(dfunc)):
+				nl_data[i] = c_double(dfunc[i])
+
+			if dfunc[0] == "const":
+				nl_func = CNN.nonlin_pw_constant
+			elif dfunc[0] == "lin":
+				nl_func == CNN.nonlin_pw_linear
+		else:
+			raise TypeError("dfunc must be a string or a list")
+		
+		ops = ["x", "y", "u1", "u2"]
+		dij = ops.index(dtype.split("-")[1])
+		dkl = ops.index(dtype.split("-")[0])
+		
+
+		self.tem = _TemplateRaw(ta, tb, z, td, dij, dkl, cast(nl_func, c_void_p), cast(nl_data, c_void_p))
 		self.bound = bound
 		self.dt = dt
 		self.t_end = t_end
-	
+
+def pw_const(*args):
+	res = ["const"]
+	for arg in args:
+		res.append(arg)
+	return res
+
+def pw_lin(*args):
+	res = ["lin"]
+	parts = list(args)
+	prev_x = parts[0]
+	prev_y = parts[1]
+	for i in range(1, round(len(parts)/2)):
+		i = i*2
+		res.append(parts[i])
+		res.append((parts[i+1]-prev_y)/(parts[i]-prev_x))
+		res.append(parts[i+1]-parts[i]*res[-1])
+		prev_x = parts[i]
+		prev_y = parts[i+1]
+	return res
+
 def load_image(path):
 	'''
 	Load the image file at path into a Matrix object.
