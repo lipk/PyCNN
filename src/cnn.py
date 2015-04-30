@@ -228,6 +228,13 @@ class Template:
 
 		dt and t_end tell the recommended time step and time interval for this
 		template. These values may be overwritten in the actual simulation.
+
+		Nonlinear templates are supported through the d, dfunc and dtype parameters.
+		d is the coefficient matrix, dfunc is the nonlinearity, specified as
+		"standard" for the standard CNN nonlinearity, "sign" for the sign function
+		or a list for a piecewise linear or constant function. For piecewise
+		nonlinearities, you should avoid manual initialization and use the pw_const
+		or pw_lin function instead.
 		'''
 		ta = Template._init_array_(a)
 		tb = Template._init_array_(b)
@@ -262,12 +269,32 @@ class Template:
 		self.t_end = t_end
 
 def pw_const(*args):
+	'''
+	Constructs a list describing a piecewise constant function
+
+	args is a sequence of numbers, interpreted as a series of coordinate pairs.
+	Between point A and following point B, the value of the output function is
+	equal to B's y coordinate.
+
+	Example:
+	pw_const(0, -1, 1, 1) constructs the sign function
+	'''
 	res = ["const"]
 	for arg in args:
 		res.append(arg)
 	return res
 
 def pw_lin(*args):
+	'''
+	Constructs a list describing a piecewise linear function.
+
+	args is a sequence of numbers, interpreted as a series of coordinate pairs.
+	The output function will consist of linear sections connecting adjacent points
+	in the input series.
+
+	Example:
+	pw_lin(-1, 1, 0, 0, 1, 1) constructs the absolute value function
+	'''
 	res = ["lin"]
 	parts = list(args)
 	prev_x = parts[0]
@@ -364,21 +391,25 @@ def run(init, input, templ, dt = None, t_end = None, anim = False):
 	'''
 	Run the CNN simulator and return the output matrix.
 
-	init and input are the initial state and input matrices. They can be either
-	Matrix objects or strings. In the latter case an image from the
-	corresponding file will be loaded. If input is set to None, init will be
-	used both for initial state and input.
+	init is the initial state matrix. It can be either a Matrix object or a
+	string. In the latter case an image from the corresponding file will be
+	loaded and used.
+
+	input is the input matrix and can be assigned the same way as init.
+	Additionally, it can also be a two-tuple, specifying two input layers, or
+	None, in which case init will be used as the input as well.
 
 	templ is the template to run. It must be either a Template object, a
 	two-tuple or a three-tuple. When it is a two-tuple, the first item must be
 	a callable defining the cell dynamic and the second item is the boundary
 	condition. When it is a three-tuple, the third argument defines the
-	connection radius. The cell function must take exactly six arguments, which
-	are, in order:
+	connection radius. The cell function must take exactly seven arguments,
+	which are, in order:
 	  x - the x coordinate of the current cell
 	  y - the y coordinate of the current cell
 	  state - the current state of the network (a matrix)
-	  input - the input matrix of the network
+	  input1 - the first input layer of the network (a matrix)
+	  input2 - the second input layer of the network (a matrix)
 	  t - current time
 	  data - a void pointer, should not be used
 	The function must return a float.
