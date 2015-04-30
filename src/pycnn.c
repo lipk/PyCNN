@@ -43,11 +43,11 @@ void py_set_template3x3(template3x3 tm)
 	{
 		if (tm.d[i] != 0)
 		{
-			tem_func = nonlin3x3;
+			tem_func = nonlinear3x3;
 			return;
 		}
 	}
-	tem_func = static3x3;
+	tem_func = linear3x3;
 }
 
 void py_set_template_custom(double (*tem)(size_t, size_t, matrix, matrix, matrix, double, void*), size_t s_val)

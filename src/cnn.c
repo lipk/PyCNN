@@ -263,7 +263,7 @@ size_t count_blacks_bottom(matrix m, size_t s)
 	return blacks;
 }
 
-double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
+double linear3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
 {
 	template3x3 *tmpl = (template3x3*) tem;
 	return phi((state.data[state.w*(y-1) + x-1]) * tmpl->a[0]) +
@@ -288,7 +288,7 @@ double static3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2,
 }
 
 
-double nonlin3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
+double nonlinear3x3(size_t x, size_t y, matrix state, matrix input1, matrix input2, double t, void *tem)
 {
 	template3x3 *tmpl = (template3x3*) tem;
 	double ij[4] =
