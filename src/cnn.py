@@ -191,7 +191,7 @@ class Template:
 			res[i] = field[i]
 		return res
 
-	def __init__(self, a = [0]*9, b = [0]*9, z = 0, bound = 0, dt = 0.1, t_end = 10.0, d = [0]*9, dfunc = "standard", dtype = "u1-x"):
+	def __init__(self, a = [0]*9, b = [0]*9, z = 0, bound = 0, dt = 0.1, t_end = 10.0, d = [0]*9, dfunc = "std", dtype = "u1-x"):
 		'''
 		Initialize a new template with given settings.
 
@@ -231,10 +231,10 @@ class Template:
 
 		Nonlinear templates are supported through the d, dfunc and dtype parameters.
 		d is the coefficient matrix, dfunc is the nonlinearity, specified as
-		"standard" for the standard CNN nonlinearity, "sign" for the sign function
-		or a list for a piecewise linear or constant function. For piecewise
-		nonlinearities, you should avoid manual initialization and use the pw_const
-		or pw_lin function instead.
+		"sd" for the standard CNN nonlinearity, "sign" for the sign function, "abs"
+		for the absolute value function	or a list for a piecewise linear or
+		constant function. For piecewise nonlinearities, you should avoid manual
+		initialization and use the pw_const or pw_lin function instead.
 		'''
 		ta = Template._init_array_(a)
 		tb = Template._init_array_(b)
@@ -245,6 +245,8 @@ class Template:
 		if type(dfunc) is str:
 			if dfunc == "sign":
 				nl_func = CNN.nonlin_sign
+			elif dfunc == "abs":
+				nl_func = CNN.nonlin_absval
 		elif type(dfunc) is list:
 			nl_data = (c_double * len(dfunc))()
 			nl_data[0] = c_double(len(dfunc))

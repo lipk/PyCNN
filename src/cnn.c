@@ -414,6 +414,18 @@ void bound_zeroflux(matrix state, size_t s)
 
 void bound_constant(matrix state, size_t s) {}
 
+double nonlin_absval(double val, void *data)
+{
+	if (val < 0)
+	{
+		return -val;
+	}
+	else
+	{
+		return val;
+	}
+}
+
 double nonlin_sign(double val, void *data)
 {
 	if (val < 0)

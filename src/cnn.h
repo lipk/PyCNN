@@ -59,6 +59,7 @@ void bound_periodic(matrix state, size_t s);
 void bound_zeroflux(matrix state, size_t s);
 void bound_constant(matrix state, size_t s);
 
+double nonlin_absval(double val, void *data);
 double nonlin_sign(double val, void *data);
 double nonlin_standard(double val, void *data);
 double nonlin_pw_constant(double val, void *data);
