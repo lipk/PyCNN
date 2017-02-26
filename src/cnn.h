@@ -19,19 +19,19 @@
 
 typedef struct
 {
-	size_t w, h;
-	double *data;
+    size_t w, h;
+    double *data;
 } matrix ;
 
 typedef struct
 {
-	double a[9];
-	double b[9];
-	double z;
-	double d[9];
-	int dij, dkl;
-	double (*phi)(double, void*);
-	void *phi_data;
+    double a[9];
+    double b[9];
+    double z;
+    double d[9];
+    int dij, dkl;
+    double (*phi)(double, void*);
+    void *phi_data;
 } template3x3;
 
 extern const matrix NULLMAT;
@@ -72,9 +72,9 @@ void update_animate(matrix m, void *data);
 void update_nothing(matrix m, void *data);
 
 matrix run_cnn(matrix init, matrix input1_, matrix input2_, size_t s,
-			   double (*cell)(size_t, size_t, matrix, matrix, matrix, double, void*),
-			   void *cell_data, void (*bnd)(matrix, size_t), double dt, double t_end,
-			   void (update)(matrix, void*), void *update_data);
+               double (*cell)(size_t, size_t, matrix, matrix, matrix, double, void*),
+               void *cell_data, void (*bnd)(matrix, size_t), double dt, double t_end,
+               void (update)(matrix, void*), void *update_data);
 
 void init_cnn();
 void quit_cnn();
